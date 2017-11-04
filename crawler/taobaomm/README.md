@@ -4,3 +4,4 @@ pip3 install selenium
 
 
 http://phantomjs.org/download.html
+pip3 install requests

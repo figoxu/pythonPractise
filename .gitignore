@@ -9,3 +9,6 @@ crawler/taobaomm/ghostdriver.log
 .idea/modules.xml
 .idea/misc.xml
 turtle.pyc
+crawler/taobaomm/.DS_Store
+crawler/.DS_Store
+.DS_Store

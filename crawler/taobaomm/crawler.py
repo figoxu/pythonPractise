@@ -2,12 +2,11 @@
 
 import os
 import threading
+import requests
 import re
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
 from selenium import webdriver
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.support.ui import WebDriverWait
 
 browserPath = '/Users/xujianhui/develop/env/phantomjs-2.1.1-macosx/bin/phantomjs'
 homePage = 'https://mm.taobao.com/search_tstar_model.htm?'
@@ -69,20 +68,9 @@ def mkdir(path):
 
 
 def getImgs(url, path):
-    url = url.replace('http:','https:')
-    print("  @url:",url,"  @path:",path," @browserPath:",browserPath)
-    ua = "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.3 Safari/537.36"
-    cap = webdriver.DesiredCapabilities.PHANTOMJS
-    cap["phantomjs.page.settings.resourceTimeout"] = 200000
-    cap["phantomjs.page.settings.loadImages"] = True
-    cap["phantomjs.page.settings.disk-cache"] = True
-    cap["phantomjs.page.settings.userAgent"] = ua
-    cap["phantomjs.page.customHeaders.User-Agent"] =ua
-    driver = webdriver.PhantomJS(executable_path=browserPath,desired_capabilities=cap, service_args=['--ignore-ssl-errors=true'])
-    print("Ready")
-    driver.get(url)
+    driver = requests.get(url)
     print("    [*]Opening...")
-    bsObj = BeautifulSoup(driver.page_source, parser)
+    bsObj = BeautifulSoup(driver.text, parser)
     #获得模特个人页面上的艺术照地址
     imgs = bsObj.find_all("img", {"src": re.compile(".*\.jpg")})
     for i, img in enumerate(imgs[1:]):  #不包含与封面图片一样的头像
