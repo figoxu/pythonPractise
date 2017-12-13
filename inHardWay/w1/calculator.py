@@ -1,14 +1,21 @@
 #coding=utf-8
 #!/usr/bin/env python3
+
 import sys
 
 def calculator(salary):
     insurance=calInsurance(salary)
-    taxBase=salary-insurance-3500
-    rate,baseTax,stageBase=switchStage(taxBase)
-    totalTax = (taxBase-stageBase)*rate+baseTax
+    totalTax = calTax(salary,insurance)
     income =salary-insurance-totalTax
     return income
+
+def calTax(salary,insurance):
+    taxBase = salary - insurance - 3500
+    if taxBase<0 :
+        taxBase=0
+    rate, baseTax, stageBase = switchStage(taxBase)
+    totalTax = (taxBase * rate) - baseTax
+    return totalTax
 
 def switchStage(income):
     if income<=1500:
@@ -31,14 +38,18 @@ def calInsurance(salary):
     return salary*(0.08+0.02+0.005+0+0+0.06)
 
 
-
+result=[]
 try:
-    salary = int(sys.argv[1])
-    tax = calculator(salary)
-    print(format(tax,".2f"))
-except IndexError:
-    # print("Please Input Salary")
+    for arg in sys.argv[1:]:
+        vs=arg.split(':')
+        salary=int(vs[1])
+        income=calculator(salary)
+        result.append(vs[0]+":"+format(income,".2f"))
+except IndexError as e:
     print("Parameter Error")
-except ValueError:
-    # print("Bad Salary Value:",sys.argv[1])
+except ValueError as e:
     print("Parameter Error")
+
+if len(result)==len(sys.argv)-1:
+    for v in result:
+        print(v)
