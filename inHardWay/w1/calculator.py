@@ -3,6 +3,7 @@
 
 import getopt
 import sys
+from multiprocessing import Process,Queue,Lock
 
 class Config(object):
 
@@ -50,35 +51,7 @@ class Config(object):
     def GongJiJin(self):
         return self.get_config("GongJiJin")
 
-class Data(object):
-    def __init__(self,path):
-        self._data={}
-        with open(path) as file:
-            for line in file:
-                vs = line.split(",")
-                k,v=vs[0].strip(),vs[1].strip()
-                self._data[k]=v
-    def caculator(self,config):
-        outdata=[]
-        for (k,v) in self._data.items():
-            salary=float(v)
-            insuranceBase=salary
-            if salary<=config.JiShuL:
-                insuranceBase=config.JiShuL
-            elif salary>=config.JiShuH:
-                insuranceBase=config.JiShuH
-            insurance = calInsurance(insuranceBase,config)
-            tax =calTax(salary-insurance)
-            income=salary-insurance-tax
-            outdata.append(str(k)+","+str(v)+","+format(insurance,".2f")+","+format(tax,".2f")+","+format(income,".2f"))
-        return outdata
 
-    def dumptofile(self,output,cfg):
-        outdata=self.caculator(cfg)
-        with open(output,"w") as file:
-            for v in outdata:
-                file.write(v+"\n")
-        file.close()
 
 def parseOpt(argv):
         try:
@@ -132,13 +105,52 @@ def calInsurance(salary,cfg):
     return salary*(cfg.YangLao+cfg.YiLiao+cfg.ShiYe+cfg.GongShang+cfg.ShengYu+cfg.GongJiJin)
 
 
+queue1 = Queue()
+queue2 = Queue()
+
+def readingInput(path,lock):
+    with lock:
+        with open(path) as file:
+            for line in file:
+                vs = line.split(",")
+                k, v = vs[0].strip(), vs[1].strip()
+                queue1.put({"k":k,"v":v})
+
+
+def calculateInput(cfg,lock):
+    with lock:
+        while not queue1.empty() :
+            obj=queue1.get()
+            k,v=obj["k"],obj["v"]
+            salary = float(v)
+            insuranceBase = salary
+            if salary <= cfg.JiShuL:
+                insuranceBase = cfg.JiShuL
+            elif salary >= cfg.JiShuH:
+                insuranceBase = cfg.JiShuH
+            insurance = calInsurance(insuranceBase, cfg)
+            tax = calTax(salary - insurance)
+            income = salary - insurance - tax
+            data = str(k) + "," + str(v) + "," + format(insurance, ".2f") + "," + format(tax, ".2f") + "," + format(income,".2f")
+            print(data)
+            queue2.put(data)
+
+def processOuput(path,lock):
+    with lock:
+        with open(path, "w") as file:
+            while not queue2.empty():
+                v = queue2.get()
+                file.write(v + "\n")
+        file.close()
 
 if __name__=='__main__':
     try:
         configure,dest,output = parseOpt(sys.argv[1:])
+        lock=Lock()
         cfg=Config(configure)
-        data=Data(dest)
-        data.dumptofile(output,cfg)
+        Process(target=readingInput,args=(dest,lock)).start()
+        Process(target=calculateInput,args=(cfg,lock)).start()
+        Process(target=processOuput,args=(output,lock)).start()
     except BaseException as err:
         print(err)
 
