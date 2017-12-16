@@ -111,35 +111,38 @@ queue2 = Queue()
 def readingInput(path,lock):
     with lock:
         with open(path) as file:
+            data=[]
             for line in file:
                 vs = line.split(",")
                 k, v = vs[0].strip(), vs[1].strip()
-                queue1.put({"k":k,"v":v})
+                data.append({"k":k,"v":v})
+            queue1.put(data)
 
 
 def calculateInput(cfg,lock):
     with lock:
-        while not queue1.empty() :
-            obj=queue1.get()
-            k,v=obj["k"],obj["v"]
-            salary = float(v)
-            insuranceBase = salary
-            if salary <= cfg.JiShuL:
-                insuranceBase = cfg.JiShuL
-            elif salary >= cfg.JiShuH:
-                insuranceBase = cfg.JiShuH
-            insurance = calInsurance(insuranceBase, cfg)
-            tax = calTax(salary - insurance)
-            income = salary - insurance - tax
-            data = str(k) + "," + str(v) + "," + format(insurance, ".2f") + "," + format(tax, ".2f") + "," + format(income,".2f")
-            queue2.put(data)
+            data=queue1.get()
+            newdata=[]
+            for obj in data:
+                k,v=obj["k"],obj["v"]
+                salary = float(v)
+                insuranceBase = salary
+                if salary <= cfg.JiShuL:
+                    insuranceBase = cfg.JiShuL
+                elif salary >= cfg.JiShuH:
+                    insuranceBase = cfg.JiShuH
+                insurance = calInsurance(insuranceBase, cfg)
+                tax = calTax(salary - insurance)
+                income = salary - insurance - tax
+                data = str(k) + "," + str(v) + "," + format(insurance, ".2f") + "," + format(tax, ".2f") + "," + format(income,".2f")+"\n"
+                newdata.append(data)
+            queue2.put(newdata)
 
 def processOuput(path,lock):
     with lock:
         with open(path, "w") as file:
-            while not queue2.empty():
-                v = queue2.get()
-                file.write(v + "\n")
+            newdata = queue2.get()
+            file.writelines(newdata)
         file.close()
 
 if __name__=='__main__':
