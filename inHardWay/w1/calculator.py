@@ -132,7 +132,6 @@ def calculateInput(cfg,lock):
             tax = calTax(salary - insurance)
             income = salary - insurance - tax
             data = str(k) + "," + str(v) + "," + format(insurance, ".2f") + "," + format(tax, ".2f") + "," + format(income,".2f")
-            print(data)
             queue2.put(data)
 
 def processOuput(path,lock):
