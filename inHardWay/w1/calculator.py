@@ -5,19 +5,18 @@ import getopt
 import sys
 from multiprocessing import Process,Queue,Lock
 from datetime import datetime
+from configparser import ConfigParser
 
 class Config(object):
 
-    def __init__(self,path):
-        self._config={}
-        with open(path) as file:
-            for line in file:
-                vs=line.split("=")
-                k,v=vs[0].strip(),vs[1].strip()
-                self._config[k]=v
+    def __init__(self,path,city):
+        self._city=city
+        cfg=ConfigParser()
+        cfg.read(path)
+        self._config=cfg
 
     def get_config(self,k):
-            return float(self._config[k])
+            return float(self._config[self._city][k])
 
     @property
     def JiShuL(self):
@@ -56,19 +55,24 @@ class Config(object):
 
 def parseOpt(argv):
         try:
-                opts,args = getopt.getopt(argv,"c:d:o:",["c=","d=","o="])
+                opts,args = getopt.getopt(argv,"hC:c:d:o:",["help","C=","c=","d=","o="])
         except getopt.GetoptError:
                 print("args error")
                 sys.exit(2)
-        configure,dest,output="","",""
+        city,configure,dest,output="DEFAULT","","",""
         for k,v in opts:
-                if k in ("-c","--config"):
+                if k in ("-h","--help"):
+                    print("Usage: calculator.py -C cityname -c configfile -d userdata -o resultdata")
+                    sys.exit()
+                elif k in ("-C","--city"):
+                        city=v
+                elif k in ("-c","--config"):
                         configure=v
                 elif k in ("-d","--dest"):
                         dest=v
                 elif k in ("-o","--output"):
                         output=v
-        return configure,dest,output
+        return city,configure,dest,output
 
 
 
@@ -149,9 +153,9 @@ def processOuput(path,lock):
 
 if __name__=='__main__':
     try:
-        configure,dest,output = parseOpt(sys.argv[1:])
+        city,configure,dest,output = parseOpt(sys.argv[1:])
         lock=Lock()
-        cfg=Config(configure)
+        cfg=Config(configure,city)
         Process(target=readingInput,args=(dest,lock)).start()
         Process(target=calculateInput,args=(cfg,lock)).start()
         Process(target=processOuput,args=(output,lock)).start()
