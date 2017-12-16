@@ -4,6 +4,7 @@
 import getopt
 import sys
 from multiprocessing import Process,Queue,Lock
+from datetime import datetime
 
 class Config(object):
 
@@ -121,6 +122,7 @@ def readingInput(path,lock):
 
 def calculateInput(cfg,lock):
     with lock:
+            dstr =  datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S')
             data=queue1.get()
             newdata=[]
             for obj in data:
@@ -134,7 +136,7 @@ def calculateInput(cfg,lock):
                 insurance = calInsurance(insuranceBase, cfg)
                 tax = calTax(salary - insurance)
                 income = salary - insurance - tax
-                data = str(k) + "," + str(v) + "," + format(insurance, ".2f") + "," + format(tax, ".2f") + "," + format(income,".2f")+"\n"
+                data = str(k) + "," + str(v) + "," + format(insurance, ".2f") + "," + format(tax, ".2f") + "," + format(income,".2f")+","+dstr+"\n"
                 newdata.append(data)
             queue2.put(newdata)
 
