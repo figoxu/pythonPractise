@@ -1,38 +1,41 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+
 from flask import Flask,render_template,abort
-import json
-import os.path
-from collections import namedtuple
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 
-NewItem = namedtuple("NewItem",['filename',"title","create_time","content"])
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:xujianhui0915@192.168.0.182:3306/shiyanlou?charset=utf8'
+app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 
+db = SQLAlchemy(app)
+
+class Doc(db.Model):
+    id = db.Column(db.Integer,primary_key=True)
+    title = db.Column(db.String(100),unique=True)
+    content = db.Column(db.String(1024))
+    created_time = db.Column(db.String(30))
+
+    def __init__(self,title,content,create_time):
+        self.title=title
+        self.content=content
+        self.created_time=create_time
+
+    def __repr__(self):
+        return '<Doc %r>' % self.title
 
 @app.route("/")
 def index():
-    files = os.listdir("/home/shiyanlou/news/files")
-    items = []
-    for filename in files :
-        data = readJsonData(filename)
-        short_name=filename.split(".")[0]
-        item = NewItem(short_name,data['title'],data['created_time'],data['content'])
-        items.append(item)
+    items=Doc.query.all()
     return render_template("index.html",items=items)
 
-def readJsonData(filename):
-    with open('/home/shiyanlou/news/files/'+filename) as f:
-        return json.loads(f.read())
-
-@app.route('/files/<filename>')
-def file(filename):
-    fullpath = filename+".json"
-    if not os.path.exists('/home/shiyanlou/news/files/'+fullpath):
+@app.route('/files/<file_id>')
+def file(file_id):
+    item=Doc.query.filter_by(id=file_id).first()
+    if item == None :
         abort(404)
-    data = readJsonData(fullpath)
-    item = NewItem(filename,data['title'],data['created_time'],data['content'])
     return render_template("file.html",item=item)
 
 @app.errorhandler(404)
