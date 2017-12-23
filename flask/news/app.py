@@ -13,24 +13,24 @@ NewItem = namedtuple("NewItem",['filename',"title","create_time","content"])
 
 @app.route("/")
 def index():
-    files = os.listdir("./files")
+    files = os.listdir("/home/shiyanlou/news/files")
     items = []
-    for file in files :
-        data = readJsonData(file)
-        short_name=file.split(".")[0]
+    for filename in files :
+        data = readJsonData(filename)
+        short_name=filename.split(".")[0]
         item = NewItem(short_name,data['title'],data['created_time'],data['content'])
         items.append(item)
     return render_template("index.html",items=items)
 
 def readJsonData(filename):
-    with open('./files/'+filename) as f:
+    with open('/home/shiyanlou/news/files/'+filename) as f:
         return json.loads(f.read())
 
 @app.route('/files/<filename>')
 def file(filename):
-    if not os.path.exists('./files/'+filename):
-        abort(404)
     fullpath = filename+".json"
+    if not os.path.exists('/home/shiyanlou/news/files/'+fullpath):
+        abort(404)
     data = readJsonData(fullpath)
     item = NewItem(filename,data['title'],data['created_time'],data['content'])
     return render_template("file.html",item=item)
