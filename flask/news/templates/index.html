@@ -1,12 +1,18 @@
+<link href="{{ url_for('static', filename="bootstrap-3.3.7-dist/css/bootstrap.min.css") }}" rel="stylesheet">
+<link href="{{ url_for('static', filename="bootstrap-3.3.7-dist/css/bootstrap.min.css") }}" rel="stylesheet">
+
+<table class="table">
+
 {% for item in items %}
-<ul>
-    <li>
+<tr>
+    <td>
         <a href="files/{{ item.id }}"> {{ item.title }} </a>
-    </li>
-    <li>
+    </td>
+    <td>
         {% for tag in item.tags %}
             {{ tag }}
         {% endfor %}
-    </li>
-</ul>
+    </td>
+</tr>
 {% endfor %}
+</table>
