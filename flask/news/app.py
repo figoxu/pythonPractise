@@ -4,13 +4,16 @@
 
 from flask import Flask,render_template,abort
 from flask_sqlalchemy import SQLAlchemy
+from pymongo import MongoClient
 
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:xujianhui0915@192.168.0.182:3306/shiyanlou?charset=utf8'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@127.0.0.1:3306/shiyanlou?charset=utf8'
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 
 db = SQLAlchemy(app)
+client = MongoClient('127.0.0.1',27017)
+mgoDb = client.shiyanlou
 
 class Doc(db.Model):
     id = db.Column(db.Integer,primary_key=True)
@@ -25,6 +28,23 @@ class Doc(db.Model):
 
     def __repr__(self):
         return '<Doc %r>' % self.title
+
+    def add_tag(self, tag_name):
+        # 读取 mongodb，返回当前文章的标签列表
+        # if mgoDb.tag.find_one({'_id':self.id}) == None :
+        #     mgoDb.tag.insert_one({'_id': self.id,'tag':[tag_name]})
+        # else:
+        mgoDb.tag.update({'_id':self.id},{'$addToSet':{'tag':tag_name}},upsert=True)
+
+    def remove_tag(self,tag_name):
+        # 读取 mongodb，返回当前文章的标签列表
+        mgoDb.tag.update({'_id':self.id},{'$pull':{'tag':tag_name}})
+
+    @property
+    def tags(self):
+        # 读取 mongodb，返回当前文章的标签列表
+        v=mgoDb.tag.find_one({'_id':self.id})
+        return v['tag']
 
 @app.route("/")
 def index():
