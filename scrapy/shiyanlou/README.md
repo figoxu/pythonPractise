@@ -15,3 +15,6 @@ response.css('div#images a::text').re('Name:(.+)')
 response.css('div#images a::text').re_first('Name:(.+)')
 
 ```
+
+scrapy runspider shiyanlou_courses_spider.py -o shiyanlougithub.json
+
