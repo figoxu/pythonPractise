@@ -12,7 +12,7 @@ class Repository(Base):
     update_time = Column(DateTime)
     commits = Column(Integer)
     branches = Column(Integer)
-    release = Column(Integer)
+    releases = Column(Integer)
 
 if __name__ == '__main__':
     Base.metadata.create_all(engine)
