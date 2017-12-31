@@ -9,13 +9,13 @@ from sqlalchemy.orm import sessionmaker
 
 from shiyanlougithub.items import ShiyanlougithubItem
 from shiyanlougithub.models import Repository,engine
-import time
+from datetime import datetime
 
 
 class ShiyanlougithubPipeline(object):
     def process_item(self, item, spider):
-        item['update_time'] = time.strptime('2017-12-28T13:44:59Z', "%Y-%m-%dT%H:%M:%SZ")
-        self.session.add(ShiyanlougithubItem(**item))
+        item['update_time'] = datetime.strptime('2017-12-28T13:44:59Z', "%Y-%m-%dT%H:%M:%SZ").date()
+        self.session.add(Repository(**item))
         return item
 
 
