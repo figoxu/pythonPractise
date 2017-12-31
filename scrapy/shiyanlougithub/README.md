@@ -2,5 +2,5 @@
     scrapy startproject shiyanlougithub
     cd shiyanlougithub
     scrapy genspider repository github.com
-    python3 models.py 
+    python3 models.py
 ```
