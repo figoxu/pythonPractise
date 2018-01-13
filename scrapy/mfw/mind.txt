@@ -1,0 +1,7 @@
+目的地
+	http://www.mafengwo.cn/mdd/
+	--搜索二级目录
+			/travel-scenic-spot/mafengwo/10186.html  ， 或者解析    里面的  ID
+			构造  http://www.mafengwo.cn/jd/10065/gonglve.html
+
+					-->找到  http://www.mafengwo.cn/poi/20460.html   ，这里是  景点的详细信息
