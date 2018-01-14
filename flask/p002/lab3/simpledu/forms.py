@@ -12,8 +12,12 @@ class RegisterForm(FlaskForm):
     submit = SubmitField('Submit')
 
     def validate_username(self, field):
+        import re
+        if re.match(r'^r"^\W*(?:\w+\b\W*){1,10}$"$', field.data):
+            raise ValidationError('bad username')
         if User.query.filter_by(username=field.data).first():
             raise ValidationError('username used')
+
     def validate_email(self, field):
         if User.query.filter_by(email=field.data).first():
             raise ValidationError('email used')
@@ -28,11 +32,11 @@ class RegisterForm(FlaskForm):
 
 
 class LoginForm(FlaskForm):
-    email = StringField('Email', validators=[Required(), Email()])
+    username = StringField('Username', validators=[Required(), Length(3, 24)])
     password = PasswordField('Password', validators=[Required(), Length(6, 24)])
     remember_me = BooleanField('Remember me')
-    def validate_email(self, field):
-        if field.data and not User.query.filter_by(email=field.data).first():
+    def validate_username(self, field):
+        if field.data and not User.query.filter_by(username=field.data).first():
             raise ValidationError('email not register')
 
     def validate_password(self, field):
