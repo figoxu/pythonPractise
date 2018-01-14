@@ -1,3 +1,6 @@
+
+sudo pip3 install flask flask-sqlalchemy mysqlclient flask-migrate flask-wtf flask-login
+
 $ sudo service mysql start
 $ mysql -uroot
 > create database simpledu;
