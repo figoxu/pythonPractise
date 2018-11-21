@@ -12,3 +12,9 @@ turtle.pyc
 crawler/taobaomm/.DS_Store
 crawler/.DS_Store
 .DS_Store
+*.pyc
+bigdata/analysis/visualReport/superset/*
+**/__pycache__/**
+**/__pycache__
+**/.idea/**
+**/venv/*
