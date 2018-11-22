@@ -79,23 +79,36 @@ def workthread_body():
         sp = BeautifulSoup(html,"html.parser")
         div = sp.select("div#quotes_content_left_pnlAJAX")
         divstring = div[0]
-        if validateUpdate(divstring):
+        isUpdated = validateUpdate(divstring)
+        logger.info(["是否已经更新",isUpdated])
+        if isUpdated:
             trlist = sp.select('div#quotes_content_left_pnlAJAX table tbody tr')
             data = []
-
             for tr in trlist:
                 trtext = tr.text.strip('\n\r')
                 if trtext == '':
                     continue
 
+                logger.info(trtext)
                 rows = re.split(r'\s+',trtext)
+                logger.info(">>>>>>")
+                logger.info(rows)
                 fields = {}
+                startIndex = 1
                 try:
                     df = '%m/%d/%Y'
-                    fields['Date'] = datetime.datetime.strptime(rows[0],df)
+                    fields['Date'] = datetime.datetime.strptime(rows[startIndex],df)
                 except ValueError:
+                    logger.info(["日期解析错误",rows[startIndex]])
                     continue
+                fields['Open'] = float(rows[startIndex+1])
+                fields['High'] = float(rows[startIndex+2])
+                fields['Low'] = float(rows[startIndex+3])
+                fields['Close'] = float(rows[startIndex+4])
+                fields['Volume'] = int(rows[startIndex+5].replace(',', ''))
+                data.append(fields)
 
+            logger.info(["数据2", data])
             for row in data:
                 row['Symbol'] = 'AAPL'
                 insert_hisq_data(row)
