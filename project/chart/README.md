@@ -22,5 +22,7 @@ python3 setup.py install
     * 配置环境变量
     export PROJ_LIB=/Users/xujianhui/miniconda3/share/proj
 
+## 安装 mpl-finance
+    见 《 Python安装finance.txt 》 附件
 
 
