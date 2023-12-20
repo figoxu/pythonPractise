@@ -1,2 +1,2 @@
-git config user.name Figo.Xu
-git config user.email xujh945@qq.com
+git config --local user.name Figo.Xu
+git config --local user.email xujh945@qq.com
